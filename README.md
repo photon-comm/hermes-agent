@@ -36,9 +36,9 @@ railway up
 
 Commands on the command line end up in your shell history. To keep secrets out of it, set the variables on the service's Variables tab in the Railway dashboard instead.
 
-The volume must be mounted at `/opt/data`. Railway cannot declare a volume in `railway.json`, so add it yourself as shown above, or from the service's settings. Without the volume, Hermes forgets every conversation on each deploy.
+The volume must be mounted at `/opt/data`. Add it as shown above, or from the service's settings. Without the volume, Hermes forgets every conversation on each deploy.
 
-Run one replica only. Two copies of the gateway on the same Photon project would both answer every message. `railway.json` asks for one replica and a restart when the service exits with an error. Railway is retiring `railway.json`: new services do not read it, and no service reads it after December 1, 2026. Check the replica count and the restart policy in the service settings. There is no healthcheck: the gateway has no public HTTP endpoint to check.
+Railway builds the `Dockerfile` at the root of the repository; there is no Railway config file to keep in step. Railway's defaults fit this service: one replica, restarted when it exits with an error. Keep it at one replica. Two copies of the gateway on the same Photon project would both answer every message. There is no healthcheck: the gateway has no public HTTP endpoint to check.
 
 To watch it start:
 
