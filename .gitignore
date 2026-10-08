@@ -1,0 +1,9 @@
+# Local secrets. Only the example file is tracked.
+.env
+.env.*
+!.env.example
+
+# Hermes state from a local run with a bind mount.
+data/
+
+.DS_Store

@@ -1,0 +1,5 @@
+# The image needs only the Dockerfile and the scripts in docker/.
+# Ignoring everything else keeps .env and other local files out of the
+# build context.
+*
+!docker/
