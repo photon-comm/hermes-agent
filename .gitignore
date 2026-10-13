@@ -7,3 +7,6 @@
 data/
 
 .DS_Store
+
+# The photon.jsonc checker's dependencies.
+node_modules/

@@ -104,6 +104,10 @@ After that, the upstream image takes over. It prepares the volume and drops to t
 
 The Dockerfile pins Hermes Agent v0.21.5, release `v2026.9.24` (upstream commit `f97608f1`), by tag and image digest. To upgrade, change the tag and the digest in the `FROM` line together and rebuild.
 
+## photon.jsonc
+
+`photon.jsonc` tells Photon what this template needs, so the Photon dashboard can set it up without anyone pasting a Photon key. It names the iMessage channel, says Hermes holds a stream open to Photon, lists the three Photon variables Photon writes into the service and the OpenRouter key you fill in, and describes the Railway service: built from the Dockerfile, one replica, a volume at `/opt/data`. Change it in the same pull request as the code it describes. A workflow checks it on every change; see [`.github/photon`](.github/photon) to run the check yourself.
+
 ## Credits and license
 
 [Hermes Agent](https://github.com/NousResearch/hermes-agent) is made by [Nous Research](https://nousresearch.com) and released under the MIT License. Its documentation is at [hermes-agent.nousresearch.com](https://hermes-agent.nousresearch.com). This template copies no Hermes source files; it builds on the published Hermes Agent image.

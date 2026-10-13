@@ -1,0 +1,56 @@
+{
+  "$schema": "https://photon.codes/schema/template/v1.json",
+  "specVersion": 1,
+  "compatibilityDate": "2026-10-13",
+
+  "name": "hermes-agent",
+  "version": "1.0.0",
+  "title": "Hermes Agent",
+  "description": "A personal AI agent you text over iMessage, built on Hermes Agent by Nous Research.",
+  "categories": ["assistant"],
+  "author": { "name": "Photon", "url": "https://photon.codes" },
+  "license": "MIT",
+  "links": { "docs": "./README.md" },
+
+  "channels": [{ "type": "imessage", "lines": ["shared", "dedicated"], "defaultLine": "shared" }],
+
+  // Hermes holds a stream open to Photon, so the deployment needs no public address.
+  "delivery": { "type": "stream" },
+
+  "bindings": {
+    "PHOTON_PROJECT_ID": "photon.project.id",
+    "PHOTON_PROJECT_SECRET": "photon.project.secret",
+    "PHOTON_ALLOWED_USERS": "photon.owner.phones",
+  },
+
+  "vars": {
+    "OPENROUTER_API_KEY": {
+      "type": "secret",
+      "title": "OpenRouter API key",
+      "description": "Pays for the model Hermes runs on. OpenRouter bills you for what the agent uses.",
+      "link": "https://openrouter.ai/settings/keys",
+      "placeholder": "sk-or-v1-…",
+      "pattern": "^sk-or-",
+    },
+    "HERMES_MODEL": {
+      "title": "Model",
+      "description": "An OpenRouter model that supports tool calling.",
+      "default": "z-ai/glm-5.2",
+      "advanced": true,
+    },
+  },
+
+  "hosts": {
+    "railway": {
+      "build": { "type": "dockerfile", "path": "Dockerfile" },
+      // Every conversation Hermes remembers lives here.
+      "volumes": [{ "mountPath": "/opt/data", "sizeMB": 1024 }],
+      // Two gateways on one Photon project would both answer every message.
+      "replicas": 1,
+      "restartPolicy": "on-failure",
+    },
+    "docker": { "dockerfile": "Dockerfile", "volumes": [{ "mountPath": "/opt/data" }] },
+    "source": { "guide": "./README.md#run-locally-with-docker", "envFile": ".env" },
+  },
+  "defaultHost": "railway",
+}
