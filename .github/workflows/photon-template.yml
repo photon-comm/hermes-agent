@@ -1,15 +1,15 @@
-# Checks photon.jsonc, the file that tells Photon what this template needs.
-# The checker lives in .github/photon until @photon-ai/template ships.
+# Checks photon.jsonc, the file that tells Photon what this template needs,
+# with @photon-ai/template, the reader Photon itself uses. Each problem shows
+# on its line of the pull request. It runs on every pull request, so it can
+# be a required check.
 name: photon.jsonc
 
 on:
-  # Every pull request, so the check can be required on main.
   pull_request:
   push:
     branches: [main]
     paths:
       - photon.jsonc
-      - .github/photon/**
       - .github/workflows/photon-template.yml
 
 permissions:
@@ -23,5 +23,4 @@ jobs:
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
-      - run: npm ci --prefix .github/photon/tools
-      - run: node .github/photon/tools/check.mjs photon.jsonc
+      - run: npx --yes @photon-ai/template@0 check photon.jsonc
