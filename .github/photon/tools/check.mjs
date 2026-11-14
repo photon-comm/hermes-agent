@@ -37,6 +37,11 @@ const LATEST_DATE = "2026-10-13";
  */
 const SINCE = {
   "channels.imessage": "2026-10-13",
+  "channels.whatsapp_personal": "2026-10-13",
+  "channels.whatsapp_business": "2026-10-13",
+  "channels.telegram": "2026-10-13",
+  "channels.sms": "2026-10-13",
+  "channels.email": "2026-10-13",
   "delivery.webhook": "2026-10-13",
   "delivery.stream": "2026-10-13",
   "signature.spectrum-v0": "2026-10-13",
@@ -67,6 +72,15 @@ const SECRET_SHAPES = [
 const MAX_BYTES = 64 * 1024;
 /** Binding sources whose value is a list. */
 const LIST_SOURCES = new Set(["photon.owner.phones"]);
+/** Channels that run on a shared or a dedicated line. */
+const LINE_CHANNELS = new Set(["imessage", "whatsapp_personal"]);
+/** Each channel type's branch of the schema's channel union. */
+const CHANNEL_BRANCHES = new Map(
+  SCHEMA.$defs.channel.oneOf.map(({ $ref }) => {
+    const name = $ref.split("/").at(-1);
+    return [SCHEMA.$defs[name].properties.type.const, `#/$defs/${name}/`];
+  }),
+);
 
 /** What a closed value at each place is called, for "isn't one Photon knows". */
 const CLOSED_VALUES = [
@@ -158,7 +172,13 @@ function checkSchema(doc) {
   const validate = ajv.getSchema(`${SCHEMA.$id}#/$defs/${kind}`);
   if (validate(doc)) return true;
 
-  const errors = validate.errors;
+  // A channel of a known type answers to its own branch of the channel union:
+  // the other branches failing on its type doesn't make the type unknown.
+  const errors = validate.errors.filter((e) => {
+    const at = /^\/channels\/(\d+)(?:\/|$)/.exec(e.instancePath);
+    const branch = at && CHANNEL_BRANCHES.get(doc.channels?.[Number(at[1])]?.type);
+    return !branch || e.schemaPath.startsWith(branch);
+  });
   const unknownAt = new Set();
   for (const e of errors) {
     const value = valueAt(doc, e.instancePath);
@@ -223,6 +243,21 @@ function checkMeaning(doc) {
   needs(`delivery.${doc.delivery.type}`, ["delivery", "type"]);
   if (doc.delivery.signature) needs(`signature.${doc.delivery.signature}`, ["delivery", "signature"]);
   for (const host of Object.keys(doc.hosts).filter((h) => !h.startsWith("x-"))) needs(`hosts.${host}`, ["hosts", host]);
+
+  // Each channel is listed once, and a line channel's default line is one of
+  // the lines it offers.
+  const types = doc.channels.map((c) => c.type);
+  for (const type of new Set(types.filter((type, i) => types.indexOf(type) !== i))) {
+    const again = types.indexOf(type, types.indexOf(type) + 1);
+    report("error", "E_CHANNEL_DUPLICATE", `${type} is listed in channels more than once.`, ["channels", again]);
+  }
+  doc.channels.forEach((c, i) => {
+    if (!LINE_CHANNELS.has(c.type)) return;
+    const defaultLine = c.defaultLine ?? "shared";
+    if (!(c.lines ?? ["shared", "dedicated"]).includes(defaultLine)) {
+      report("error", "E_DEFAULT_LINE", `${c.type}'s defaultLine, ${defaultLine}, isn't one of its lines.`, ["channels", i]);
+    }
+  });
 
   // Names: what Photon writes and what the person fills in share one namespace.
   const bindings = doc.bindings ?? {};
@@ -334,8 +369,8 @@ function normalize(doc) {
     links: strip(doc.links ?? {}),
     demo: doc.demo ?? {},
     channels: doc.channels.map((c) =>
-      c.type === "imessage"
-        ? { type: "imessage", lines: c.lines ?? ["shared", "dedicated"], defaultLine: c.defaultLine ?? "shared" }
+      LINE_CHANNELS.has(c.type)
+        ? { type: c.type, lines: c.lines ?? ["shared", "dedicated"], defaultLine: c.defaultLine ?? "shared" }
         : strip(c),
     ),
     delivery:
