@@ -3,11 +3,8 @@
 name: photon.jsonc
 
 on:
+  # Every pull request, so the check can be required on main.
   pull_request:
-    paths:
-      - photon.jsonc
-      - .github/photon/**
-      - .github/workflows/photon-template.yml
   push:
     branches: [main]
     paths:

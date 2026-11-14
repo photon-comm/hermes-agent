@@ -46,7 +46,11 @@
         "categories": {
           "description": "Open list: values Photon doesn't recognize are kept and shown as tags.",
           "type": "array",
-          "items": { "type": "string", "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$", "maxLength": 32 },
+          "items": {
+            "type": "string",
+            "pattern": "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+            "maxLength": 32
+          },
           "maxItems": 5,
           "uniqueItems": true
         },
@@ -60,7 +64,11 @@
           },
           "additionalProperties": false
         },
-        "license": { "description": "SPDX identifier.", "type": "string", "maxLength": 64 },
+        "license": {
+          "description": "SPDX identifier.",
+          "type": "string",
+          "maxLength": 64
+        },
         "links": {
           "type": "object",
           "properties": {
@@ -78,6 +86,7 @@
           "additionalProperties": false
         },
         "channels": {
+          "description": "The channels the agent can talk on, one entry per channel. The setup asks which one to set up first.",
           "type": "array",
           "minItems": 1,
           "maxItems": 8,
@@ -161,7 +170,14 @@
     "phone": { "type": "string", "pattern": "^\\+[1-9]\\d{6,14}$" },
 
     "channel": {
-      "oneOf": [{ "$ref": "#/$defs/channelImessage" }]
+      "oneOf": [
+        { "$ref": "#/$defs/channelImessage" },
+        { "$ref": "#/$defs/channelWhatsappPersonal" },
+        { "$ref": "#/$defs/channelWhatsappBusiness" },
+        { "$ref": "#/$defs/channelTelegram" },
+        { "$ref": "#/$defs/channelSms" },
+        { "$ref": "#/$defs/channelEmail" }
+      ]
     },
     "channelImessage": {
       "type": "object",
@@ -181,10 +197,59 @@
       "patternProperties": { "^x-": true },
       "additionalProperties": false
     },
+    "channelWhatsappPersonal": {
+      "type": "object",
+      "required": ["type"],
+      "properties": {
+        "type": { "const": "whatsapp_personal" },
+        "lines": {
+          "description": "Which kinds of WhatsApp Personal line the template works on; the setup offers these.",
+          "type": "array",
+          "items": { "enum": ["shared", "dedicated"] },
+          "minItems": 1,
+          "uniqueItems": true,
+          "default": ["shared", "dedicated"]
+        },
+        "defaultLine": { "enum": ["shared", "dedicated"], "default": "shared" }
+      },
+      "patternProperties": { "^x-": true },
+      "additionalProperties": false
+    },
+    "channelWhatsappBusiness": {
+      "type": "object",
+      "required": ["type"],
+      "properties": { "type": { "const": "whatsapp_business" } },
+      "patternProperties": { "^x-": true },
+      "additionalProperties": false
+    },
+    "channelTelegram": {
+      "type": "object",
+      "required": ["type"],
+      "properties": { "type": { "const": "telegram" } },
+      "patternProperties": { "^x-": true },
+      "additionalProperties": false
+    },
+    "channelSms": {
+      "type": "object",
+      "required": ["type"],
+      "properties": { "type": { "const": "sms" } },
+      "patternProperties": { "^x-": true },
+      "additionalProperties": false
+    },
+    "channelEmail": {
+      "type": "object",
+      "required": ["type"],
+      "properties": { "type": { "const": "email" } },
+      "patternProperties": { "^x-": true },
+      "additionalProperties": false
+    },
 
     "delivery": {
       "description": "How messages reach the agent.",
-      "oneOf": [{ "$ref": "#/$defs/deliveryWebhook" }, { "$ref": "#/$defs/deliveryStream" }]
+      "oneOf": [
+        { "$ref": "#/$defs/deliveryWebhook" },
+        { "$ref": "#/$defs/deliveryStream" }
+      ]
     },
     "deliveryWebhook": {
       "type": "object",
@@ -216,7 +281,10 @@
       "type": "object",
       "required": ["type"],
       "properties": {
-        "type": { "const": "stream", "description": "The agent holds a connection open to Photon; no public address needed." }
+        "type": {
+          "const": "stream",
+          "description": "The agent holds a connection open to Photon; no public address needed."
+        }
       },
       "patternProperties": { "^x-": true },
       "additionalProperties": false
@@ -258,12 +326,24 @@
       "required": ["title"],
       "properties": {
         "type": {
-          "enum": ["string", "secret", "url", "email", "phone", "enum", "boolean", "integer"],
+          "enum": [
+            "string",
+            "secret",
+            "url",
+            "email",
+            "phone",
+            "enum",
+            "boolean",
+            "integer"
+          ],
           "default": "string"
         },
         "title": { "type": "string", "minLength": 1, "maxLength": 64 },
         "description": { "type": "string", "maxLength": 280 },
-        "link": { "$ref": "#/$defs/httpsUrl", "description": "Where to get the value." },
+        "link": {
+          "$ref": "#/$defs/httpsUrl",
+          "description": "Where to get the value."
+        },
         "required": {
           "description": "Defaults to true, unless the variable has a default or is generated.",
           "type": "boolean"
@@ -301,7 +381,12 @@
           "required": ["type"],
           "properties": {
             "type": { "const": "random" },
-            "bytes": { "type": "integer", "minimum": 16, "maximum": 64, "default": 32 },
+            "bytes": {
+              "type": "integer",
+              "minimum": 16,
+              "maximum": 64,
+              "default": 32
+            },
             "encoding": { "enum": ["hex", "base64url"], "default": "hex" }
           },
           "additionalProperties": false
@@ -309,11 +394,17 @@
       },
       "allOf": [
         {
-          "if": { "properties": { "type": { "const": "secret" } }, "required": ["type"] },
+          "if": {
+            "properties": { "type": { "const": "secret" } },
+            "required": ["type"]
+          },
           "then": { "not": { "required": ["default"] } }
         },
         {
-          "if": { "properties": { "type": { "const": "enum" } }, "required": ["type"] },
+          "if": {
+            "properties": { "type": { "const": "enum" } },
+            "required": ["type"]
+          },
           "then": { "required": ["options"] }
         },
         {
@@ -321,7 +412,12 @@
           "then": {
             "properties": { "type": { "const": "secret" } },
             "required": ["type"],
-            "not": { "anyOf": [{ "required": ["default"] }, { "required": ["placeholder"] }] }
+            "not": {
+              "anyOf": [
+                { "required": ["default"] },
+                { "required": ["placeholder"] }
+              ]
+            }
           }
         }
       ],
@@ -390,9 +486,17 @@
           ]
         },
         "start": { "type": "string", "maxLength": 512 },
-        "volumes": { "$ref": "#/$defs/volumes" },
-        "replicas": { "type": "integer", "minimum": 1, "maximum": 1, "default": 1 },
-        "restartPolicy": { "enum": ["on-failure", "always", "never"], "default": "on-failure" }
+        "volumes": { "$ref": "#/$defs/volumes", "maxItems": 1 },
+        "replicas": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1,
+          "default": 1
+        },
+        "restartPolicy": {
+          "enum": ["on-failure", "always", "never"],
+          "default": "on-failure"
+        }
       },
       "patternProperties": { "^x-": true },
       "additionalProperties": false
@@ -413,7 +517,11 @@
       "type": "object",
       "properties": {
         "guide": { "$ref": "#/$defs/link" },
-        "envFile": { "type": "string", "pattern": "^\\.?[A-Za-z0-9._-]+$", "default": ".env" }
+        "envFile": {
+          "type": "string",
+          "pattern": "^\\.?[A-Za-z0-9._-]+$",
+          "default": ".env"
+        }
       },
       "patternProperties": { "^x-": true },
       "additionalProperties": false
@@ -455,7 +563,12 @@
               "properties": {
                 "type": { "const": "http" },
                 "path": { "type": "string", "pattern": "^/[A-Za-z0-9._~/-]*$" },
-                "status": { "type": "integer", "minimum": 200, "maximum": 299, "default": 200 }
+                "status": {
+                  "type": "integer",
+                  "minimum": 200,
+                  "maximum": 299,
+                  "default": 200
+                }
               },
               "additionalProperties": false
             }
@@ -467,7 +580,12 @@
           "required": ["type"],
           "properties": {
             "type": { "const": "first-reply" },
-            "timeoutSeconds": { "type": "integer", "minimum": 30, "maximum": 3600, "default": 600 }
+            "timeoutSeconds": {
+              "type": "integer",
+              "minimum": 30,
+              "maximum": 3600,
+              "default": 600
+            }
           },
           "additionalProperties": false
         }
