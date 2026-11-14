@@ -44,7 +44,7 @@
     "railway": {
       "build": { "type": "dockerfile", "path": "Dockerfile" },
       // Every conversation Hermes remembers lives here.
-      "volumes": [{ "mountPath": "/opt/data", "sizeMB": 1024 }],
+      "volumes": [{ "mountPath": "/opt/data" }, { "mountPath": "/opt/cache" }],
       // Two gateways on one Photon project would both answer every message.
       "replicas": 1,
       "restartPolicy": "on-failure",
