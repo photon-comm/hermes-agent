@@ -106,7 +106,7 @@ The Dockerfile pins Hermes Agent v0.21.5, release `v2026.9.24` (upstream commit 
 
 ## photon.jsonc
 
-`photon.jsonc` tells Photon what this template needs, so the Photon dashboard can set it up without anyone pasting a Photon key. It names the iMessage channel, says Hermes holds a stream open to Photon, lists the three Photon variables Photon writes into the service and the OpenRouter key you fill in, and describes the Railway service: built from the Dockerfile, one replica, a volume at `/opt/data`. Change it in the same pull request as the code it describes. A workflow checks it on every change; see [`.github/photon`](.github/photon) to run the check yourself.
+`photon.jsonc` tells Photon what this template needs, so the Photon dashboard can set it up without anyone pasting a Photon key. It names the iMessage channel, says Hermes holds a stream open to Photon, lists the three Photon variables Photon writes into the service and the OpenRouter key you fill in, and describes the Railway service: built from the Dockerfile, one replica, a volume at `/opt/data`. Change it in the same pull request as the code it describes. A workflow checks it on every pull request with [`@photon-ai/template`](https://www.npmjs.com/package/@photon-ai/template), the reader Photon uses; run `npx @photon-ai/template check photon.jsonc` to check it yourself.
 
 ## Credits and license
 
