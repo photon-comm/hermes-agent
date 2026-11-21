@@ -50,6 +50,5 @@
       "restartPolicy": "on-failure",
     },
   },
-  "defaultHost": "railway",
   "selfRun": { "guide": "./README.md#run-locally-with-docker", "envFile": ".env" },
 }
