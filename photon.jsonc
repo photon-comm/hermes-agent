@@ -49,8 +49,7 @@
       "replicas": 1,
       "restartPolicy": "on-failure",
     },
-    "docker": { "dockerfile": "Dockerfile", "volumes": [{ "mountPath": "/opt/data" }] },
-    "source": { "guide": "./README.md#run-locally-with-docker", "envFile": ".env" },
   },
   "defaultHost": "railway",
+  "selfRun": { "guide": "./README.md#run-locally-with-docker", "envFile": ".env" },
 }
