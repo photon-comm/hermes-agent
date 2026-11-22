@@ -7,6 +7,7 @@
   "version": "1.0.0",
   "title": "Hermes Agent",
   "description": "A personal AI agent you text over iMessage, built on Hermes Agent by Nous Research.",
+  "icon": "./icon.svg",
   "categories": ["assistant"],
   "author": { "name": "Photon", "url": "https://photon.codes" },
   "license": "MIT",
